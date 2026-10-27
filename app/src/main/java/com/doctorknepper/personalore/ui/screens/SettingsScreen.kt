@@ -284,7 +284,7 @@ fun SettingsScreen() {
             }
 
             SectionLabel("About")
-            Text("PersonaLore 1.2 · your life, in your own words.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("PersonaLore 1.3 · your life, in your own words.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(48.dp))
         }
     }

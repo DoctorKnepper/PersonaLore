@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sunset behind the journal, using Karteria's palette: plum sky to burnt orange, a glowing sun, dark ground. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:pathData="M0,0 H108 V108 H0 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="54" android:startY="0"
+                android:endX="54" android:endY="108">
+                <item android:offset="0" android:color="#FF4A1F29" />
+                <item android:offset="0.72" android:color="#FFD85029" />
+                <item android:offset="1" android:color="#FFE0582D" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- soft glow around the sun, like Karteria's -->
+    <path
+        android:fillColor="#40F2985F"
+        android:pathData="M54,70.5 m-31,0 a31,31 0 1,0 62,0 a31,31 0 1,0 -62,0" />
+    <path
+        android:fillColor="#59F2985F"
+        android:pathData="M54,70.5 m-26,0 a26,26 0 1,0 52,0 a26,26 0 1,0 -52,0" />
+    <!-- sun -->
+    <path
+        android:fillColor="#FFF2985F"
+        android:pathData="M54,70.5 m-22,0 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0" />
+    <!-- ground -->
+    <path
+        android:fillColor="#FF1B1D1F"
+        android:pathData="M0,78.2 H108 V108 H0 Z" />
+</vector>

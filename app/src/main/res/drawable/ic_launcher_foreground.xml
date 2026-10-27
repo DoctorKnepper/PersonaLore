@@ -1,29 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- A locked amber journal with a ribbon bookmark beside the spine.
-     The keyhole is a true cutout, so the same drawable works for themed (monochrome) icons
-     and the notification icon. -->
+<!-- Charcoal locked journal standing on the horizon, keyhole glowing with the sunset, crimson ribbon. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <group
-        android:scaleX="0.85"
-        android:scaleY="0.85"
-        android:translateX="14.9"
-        android:translateY="13.2">
-        <!-- cover with keyhole cut out -->
-        <path
-            android:fillColor="#FFB300"
-            android:fillType="evenOdd"
-            android:pathData="M29,14 H63 A5,5 0 0 1 68,19 V67 A5,5 0 0 1 63,72 H29 A5,5 0 0 1 24,67 V19 A5,5 0 0 1 29,14 Z M47.4,43.3 A6,6 0 1 1 52.6,43.3 L55,54 L45,54 Z" />
-        <!-- spine -->
-        <path
-            android:fillColor="#C98A00"
-            android:pathData="M29,14 H31 V72 H29 A5,5 0 0 1 24,67 V19 A5,5 0 0 1 29,14 Z" />
-        <!-- ribbon bookmark -->
-        <path
-            android:fillColor="#FFC94D"
-            android:pathData="M34,70 L34,82 L38,78 L42,82 L42,70 Z" />
+    <group android:scaleX="0.86" android:scaleY="0.86" android:pivotX="54" android:pivotY="74">
+    <!-- ribbon (drawn first so it tucks under the cover) -->
+    <path
+        android:fillColor="#FFB3263A"
+        android:pathData="M45.2,70 L45.2,81 L48.5,77.6 L51.8,81 L51.8,70 Z" />
+    <!-- cover -->
+    <path
+        android:fillColor="#FF1B1D1F"
+        android:pathData="M40.8,27.6 H67.2 A3.3,3.3 0 0 1 70.5,30.9 V68.3 A3.3,3.3 0 0 1 67.2,71.6 H40.8 A3.3,3.3 0 0 1 37.5,68.3 V30.9 A3.3,3.3 0 0 1 40.8,27.6 Z" />
+    <!-- spine -->
+    <path
+        android:fillColor="#FF2A2D30"
+        android:pathData="M40.8,27.6 H43 V71.6 H40.8 A3.3,3.3 0 0 1 37.5,68.3 V30.9 A3.3,3.3 0 0 1 40.8,27.6 Z" />
+    <!-- keyhole, lit by the sunset -->
+    <path
+        android:fillColor="#FFF2985F"
+        android:pathData="M53.9,48.6 A4.4,4.4 0 1 1 58.5,48.6 L59.9,57.3 L52.5,57.3 Z" />
     </group>
 </vector>

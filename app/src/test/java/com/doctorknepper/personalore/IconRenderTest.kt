@@ -25,5 +25,12 @@ class IconRenderTest {
         d.draw(Canvas(bmp))
         File("build/screens").mkdirs()
         File("build/screens/icon.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        // Full-bleed layers, so the masks used by different launchers can be checked.
+        for (name in listOf("ic_launcher_background", "ic_launcher_foreground", "ic_launcher_monochrome")) {
+            val id = ctx.resources.getIdentifier(name, "drawable", ctx.packageName)
+            val layer = Bitmap.createBitmap(432, 432, Bitmap.Config.ARGB_8888)
+            ContextCompat.getDrawable(ctx, id)!!.apply { setBounds(0, 0, 432, 432); draw(Canvas(layer)) }
+            File("build/screens/$name.png").outputStream().use { layer.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
     }
 }

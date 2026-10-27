@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Single-color silhouette for Android themed icons and the notification icon: journal with keyhole cut out, plus ribbon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:scaleX="0.86" android:scaleY="0.86" android:pivotX="54" android:pivotY="74">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M40.8,27.6 H67.2 A3.3,3.3 0 0 1 70.5,30.9 V68.3 A3.3,3.3 0 0 1 67.2,71.6 H40.8 A3.3,3.3 0 0 1 37.5,68.3 V30.9 A3.3,3.3 0 0 1 40.8,27.6 Z M53.9,48.6 A4.4,4.4 0 1 1 58.5,48.6 L59.9,57.3 L52.5,57.3 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M45.2,73 L45.2,81 L48.5,77.6 L51.8,81 L51.8,73 Z" />
+    </group>
+</vector>

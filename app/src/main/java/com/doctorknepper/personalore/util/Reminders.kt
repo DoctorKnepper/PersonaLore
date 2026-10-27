@@ -50,7 +50,7 @@ object Reminders {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val n = NotificationCompat.Builder(context, CHANNEL)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_launcher_monochrome)
             .setContentTitle("Time to write")
             .setContentText(prompt ?: "Take a few minutes for your journal.")
             .setStyle(NotificationCompat.BigTextStyle().bigText(prompt ?: "Take a few minutes for your journal."))
