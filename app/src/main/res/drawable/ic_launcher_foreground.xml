@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- An open book with a flame/quill rising from its spine, in amber. -->
+<!-- A locked amber journal with a ribbon bookmark beside the spine.
+     The keyhole is a true cutout, so the same drawable works for themed (monochrome) icons
+     and the notification icon. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- left page -->
-    <path
-        android:fillColor="#FFB300"
-        android:pathData="M30,44 C38,41 46,42 52,46 L52,72 C46,68 38,67 30,70 Z" />
-    <!-- right page -->
-    <path
-        android:fillColor="#FFC94D"
-        android:pathData="M78,44 C70,41 62,42 56,46 L56,72 C62,68 70,67 78,70 Z" />
-    <!-- flame above the spine -->
-    <path
-        android:fillColor="#FFB300"
-        android:pathData="M54,22 C60,30 62,34 58,40 C57,36 55,35 54,33 C53,36 50,37 50,41 C46,35 48,29 54,22 Z" />
+    <group
+        android:scaleX="0.85"
+        android:scaleY="0.85"
+        android:translateX="14.9"
+        android:translateY="13.2">
+        <!-- cover with keyhole cut out -->
+        <path
+            android:fillColor="#FFB300"
+            android:fillType="evenOdd"
+            android:pathData="M29,14 H63 A5,5 0 0 1 68,19 V67 A5,5 0 0 1 63,72 H29 A5,5 0 0 1 24,67 V19 A5,5 0 0 1 29,14 Z M47.4,43.3 A6,6 0 1 1 52.6,43.3 L55,54 L45,54 Z" />
+        <!-- spine -->
+        <path
+            android:fillColor="#C98A00"
+            android:pathData="M29,14 H31 V72 H29 A5,5 0 0 1 24,67 V19 A5,5 0 0 1 29,14 Z" />
+        <!-- ribbon bookmark -->
+        <path
+            android:fillColor="#FFC94D"
+            android:pathData="M34,70 L34,82 L38,78 L42,82 L42,70 Z" />
+    </group>
 </vector>
