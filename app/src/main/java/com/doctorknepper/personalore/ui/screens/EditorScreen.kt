@@ -80,7 +80,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import coil.compose.AsyncImage
+import com.doctorknepper.personalore.ui.EncryptedImage
+import com.doctorknepper.personalore.ui.AppLock
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.doctorknepper.personalore.data.AudioClip
 import com.doctorknepper.personalore.data.Entry
 import com.doctorknepper.personalore.data.PromptLibrary
@@ -145,19 +150,27 @@ fun EditorScreen(route: Route.Editor) {
     var recStart by remember { mutableLongStateOf(0L) }
     var recElapsed by remember { mutableLongStateOf(0L) }
     LaunchedEffect(recording) { while (recording) { recElapsed = System.currentTimeMillis() - recStart; delay(250) } }
-    DisposableEffect(Unit) { onDispose { if (recorder.isRecording) recorder.stop()?.let { (f, d) -> audio.add(AudioClip(f.name, d)); newMedia.add(f.name) } } }
+    DisposableEffect(Unit) { onDispose { if (recorder.isRecording) recorder.stop()?.let { (f, _) -> f.delete() } } }
 
     fun startRecording() {
-        val f = Store.newAudioFile()
+        val f = Store.newTempAudioFile()
         if (recorder.start(f)) { recording = true; recStart = System.currentTimeMillis(); recElapsed = 0 }
     }
     fun stopRecording() {
         recording = false
-        recorder.stop()?.let { (f, d) -> audio.add(AudioClip(f.name, d)); newMedia.add(f.name) }
+        recorder.stop()?.let { (f, d) -> Store.adoptAudio(f)?.let { n -> audio.add(AudioClip(n, d)); newMedia.add(n) } }
     }
     val micPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> if (ok) startRecording() }
+    val scope = rememberCoroutineScope()
+    var importing by remember { mutableStateOf(0) }
     val pickPhotos = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(10)) { uris ->
-        uris.forEach { u -> Store.importPhoto(u)?.let { photos.add(it); newMedia.add(it) } }
+        importing += uris.size
+        scope.launch {
+            uris.forEach { u ->
+                withContext(Dispatchers.IO) { Store.importPhoto(u) }?.let { photos.add(it); newMedia.add(it) }
+                importing--
+            }
+        }
     }
 
     fun addTag(raw: String) {
@@ -191,7 +204,7 @@ fun EditorScreen(route: Route.Editor) {
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             BackBar(if (existing == null) "New entry" else "Edit entry", onBack = { if (changed) confirmDiscard = true else discard() }) {
-                TextButton(onClick = ::save, enabled = canSave) { Text("Save", fontWeight = FontWeight.SemiBold) }
+                TextButton(onClick = ::save, enabled = canSave && importing == 0) { Text("Save", fontWeight = FontWeight.SemiBold) }
             }
         },
     ) { pad ->
@@ -298,11 +311,13 @@ fun EditorScreen(route: Route.Editor) {
             }
 
             SectionLabel("Photos")
+            if (importing > 0) Text("Adding $importing photo${if (importing == 1) "" else "s"}…", style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 6.dp))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(photos.toList()) { p ->
                     Box {
-                        AsyncImage(
-                            model = File(Store.mediaDir, p), contentDescription = null, contentScale = ContentScale.Crop,
+                        EncryptedImage(
+                            p, maxSidePx = 300, contentScale = ContentScale.Crop,
                             modifier = Modifier.size(96.dp).clip(RoundedCornerShape(12.dp)),
                         )
                         Box(
@@ -315,7 +330,7 @@ fun EditorScreen(route: Route.Editor) {
                 item {
                     Box(
                         Modifier.size(96.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                            .clickable { pickPhotos.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                            .clickable { AppLock.leavingForPicker(); pickPhotos.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
                         contentAlignment = Alignment.Center,
                     ) { Icon(Icons.Outlined.AddPhotoAlternate, "Add photos", tint = MaterialTheme.colorScheme.primary) }
                 }
@@ -323,7 +338,8 @@ fun EditorScreen(route: Route.Editor) {
 
             SectionLabel("Voice notes")
             audio.toList().forEachIndexed { i, clip ->
-                VoiceClipRow(clip, label = "Voice note ${i + 1}", onRemove = { audio.remove(clip) })
+                VoiceClipRow(clip, label = "Voice note ${i + 1}", onRemove = { audio.remove(clip) },
+                    onNoteChange = { n -> if (i < audio.size) audio[i] = audio[i].copy(note = n) })
             }
             if (recording) {
                 OutlinedButton(onClick = ::stopRecording, modifier = Modifier.fillMaxWidth()) {
@@ -336,7 +352,7 @@ fun EditorScreen(route: Route.Editor) {
             } else {
                 OutlinedButton(onClick = {
                     if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) startRecording()
-                    else micPermission.launch(Manifest.permission.RECORD_AUDIO)
+                    else { AppLock.leavingForPicker(); micPermission.launch(Manifest.permission.RECORD_AUDIO) }
                 }, modifier = Modifier.fillMaxWidth()) {
                     Icon(Icons.Outlined.Mic, null)
                     Spacer(Modifier.width(8.dp))

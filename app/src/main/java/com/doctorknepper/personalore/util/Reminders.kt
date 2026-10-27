@@ -41,10 +41,10 @@ object Reminders {
         Store.init(context)
         val nm = context.getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CHANNEL, "Daily journal reminder", NotificationManager.IMPORTANCE_DEFAULT))
-        val wroteToday = Store.entries.any { it.date == LocalDate.now() }
-        if (wroteToday) return // no nagging once you've written
+        if (Store.wroteToday) return // no nagging once you've written
+        // With the lock on, the journal stays encrypted, so the notification can't show your prompt.
         Store.ensureDailyPrompt()
-        val prompt = Store.dailyPrompt?.text
+        val prompt = if (Store.unlocked && !Store.lockEnabled) Store.dailyPrompt?.text else null
         val open = PendingIntent.getActivity(
             context, 2, Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,

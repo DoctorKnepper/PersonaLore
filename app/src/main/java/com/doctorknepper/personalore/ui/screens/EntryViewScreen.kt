@@ -50,7 +50,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import coil.compose.AsyncImage
+import com.doctorknepper.personalore.ui.EncryptedImage
+import com.doctorknepper.personalore.ui.Snacks
+import androidx.compose.foundation.layout.Column as Col
+import androidx.compose.material3.OutlinedTextField
 import com.doctorknepper.personalore.data.AudioClip
 import com.doctorknepper.personalore.data.Store
 import com.doctorknepper.personalore.data.moodOf
@@ -69,7 +72,6 @@ import java.io.File
 fun EntryViewScreen(entryId: String) {
     val nav = LocalNav.current
     val e = Store.entries.firstOrNull { it.id == entryId }
-    var confirmDelete by remember { mutableStateOf(false) }
     var fullPhoto by remember { mutableStateOf<String?>(null) }
 
     if (e == null) {
@@ -84,7 +86,11 @@ fun EntryViewScreen(entryId: String) {
         topBar = {
             BackBar(e.date.format(DayFmt), onBack = { nav.pop() }) {
                 IconButton(onClick = { nav.push(Route.Editor(entryId = e.id)) }) { Icon(Icons.Outlined.Edit, "Edit") }
-                IconButton(onClick = { confirmDelete = true }) { Icon(Icons.Outlined.Delete, "Delete") }
+                IconButton(onClick = {
+                    val id = e.id
+                    Store.deleteEntry(id); nav.pop()
+                    Snacks.show("Moved to trash", "Undo") { Store.restoreEntry(id) }
+                }) { Icon(Icons.Outlined.Delete, "Move to trash") }
             }
         },
     ) { pad ->
@@ -117,8 +123,8 @@ fun EntryViewScreen(entryId: String) {
                 SectionLabel("Photos")
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(e.photos) { p ->
-                        AsyncImage(
-                            model = File(Store.mediaDir, p), contentDescription = null, contentScale = ContentScale.Crop,
+                        EncryptedImage(
+                            p, maxSidePx = 420, contentScale = ContentScale.Crop,
                             modifier = Modifier.size(140.dp).clip(RoundedCornerShape(14.dp)).clickable { fullPhoto = p },
                         )
                     }
@@ -141,7 +147,7 @@ fun EntryViewScreen(entryId: String) {
     fullPhoto?.let { p ->
         Dialog(onDismissRequest = { fullPhoto = null }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
             Box(Modifier.fillMaxSize().background(Color.Black).clickable { fullPhoto = null }) {
-                AsyncImage(model = File(Store.mediaDir, p), contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
+                EncryptedImage(p, maxSidePx = 2560, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
                 IconButton(onClick = { fullPhoto = null }, modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)) {
                     Icon(Icons.Filled.Close, "Close", tint = Color.White)
                 }
@@ -149,34 +155,36 @@ fun EntryViewScreen(entryId: String) {
         }
     }
 
-    if (confirmDelete) {
-        AlertDialog(
-            onDismissRequest = { confirmDelete = false },
-            title = { Text("Delete this entry?") },
-            text = { Text("The entry, its photos and its voice notes will be permanently removed.") },
-            confirmButton = { TextButton(onClick = { confirmDelete = false; Store.deleteEntry(e.id); nav.pop() }) { Text("Delete") } },
-            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
-        )
-    }
 }
 
 @Composable
-fun VoiceClipRow(clip: AudioClip, label: String, onRemove: (() -> Unit)? = null) {
+fun VoiceClipRow(clip: AudioClip, label: String, onRemove: (() -> Unit)? = null, onNoteChange: ((String) -> Unit)? = null) {
     var playing by remember { mutableStateOf(VoicePlayer.playingFile == clip.file) }
     DisposableEffect(clip.file) { onDispose { if (VoicePlayer.playingFile == clip.file) VoicePlayer.stop() } }
-    Row(
+    Col(
         Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = {
-            if (playing) VoicePlayer.stop()
-            else { playing = true; VoicePlayer.play(File(Store.mediaDir, clip.file)) { playing = false } }
-        }) {
-            Icon(if (playing) Icons.Filled.Stop else Icons.Filled.PlayArrow, if (playing) "Stop" else "Play", tint = MaterialTheme.colorScheme.primary)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = {
+                if (playing) VoicePlayer.stop()
+                else { playing = true; VoicePlayer.play(clip.file) { playing = false } }
+            }) {
+                Icon(if (playing) Icons.Filled.Stop else Icons.Filled.PlayArrow, if (playing) "Stop" else "Play", tint = MaterialTheme.colorScheme.primary)
+            }
+            Col(Modifier.weight(1f)) {
+                if (onNoteChange == null && clip.note.isNotBlank()) {
+                    Text(clip.note, style = MaterialTheme.typography.bodyMedium)
+                    Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                } else Text(label, style = MaterialTheme.typography.bodyMedium)
+            }
+            Text(formatDuration(clip.durationMs), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (onRemove != null) IconButton(onClick = { if (playing) VoicePlayer.stop(); onRemove() }) { Icon(Icons.Filled.Close, "Remove voice note") }
         }
-        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-        Text(formatDuration(clip.durationMs), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        if (onRemove != null) IconButton(onClick = { if (playing) VoicePlayer.stop(); onRemove() }) { Icon(Icons.Filled.Close, "Remove voice note") }
+        if (onNoteChange != null) OutlinedTextField(
+            value = clip.note, onValueChange = onNoteChange, singleLine = true,
+            placeholder = { Text("Label it so you can search for it later") },
+            modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 4.dp, bottom = 6.dp),
+        )
     }
 }

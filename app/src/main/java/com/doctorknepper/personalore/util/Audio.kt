@@ -1,6 +1,7 @@
 package com.doctorknepper.personalore.util
 
 import android.content.Context
+import android.media.MediaDataSource
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
@@ -43,21 +44,35 @@ class VoiceRecorder(private val context: Context) {
     fun cancel() { stop()?.first?.delete() }
 }
 
+/** Plays a decrypted voice note straight from memory, so no plain copy is written to disk. */
+private class BytesDataSource(private val data: ByteArray) : MediaDataSource() {
+    override fun readAt(position: Long, buffer: ByteArray, offset: Int, size: Int): Int {
+        if (position >= data.size) return -1
+        val n = minOf(size.toLong(), data.size - position).toInt()
+        System.arraycopy(data, position.toInt(), buffer, offset, n)
+        return n
+    }
+    override fun getSize() = data.size.toLong()
+    override fun close() {}
+}
+
 /** One shared player so only one voice note plays at a time. */
 object VoicePlayer {
     private var player: MediaPlayer? = null
     var playingFile: String? = null; private set
     private var onDone: (() -> Unit)? = null
 
-    fun play(file: File, done: () -> Unit) {
+    fun play(name: String, done: () -> Unit) {
         stop()
+        val bytes = com.doctorknepper.personalore.data.Store.readMedia(name)
+        if (bytes == null) { done(); return }
         runCatching {
             player = MediaPlayer().apply {
-                setDataSource(file.absolutePath)
+                setDataSource(BytesDataSource(bytes))
                 setOnCompletionListener { stop() }
                 prepare(); start()
             }
-            playingFile = file.name
+            playingFile = name
             onDone = done
         }.onFailure { stop(); done() }
     }

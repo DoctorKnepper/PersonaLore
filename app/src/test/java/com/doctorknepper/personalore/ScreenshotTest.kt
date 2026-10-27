@@ -52,7 +52,8 @@ class ScreenshotTest {
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     private fun seed() {
-        Store.init(ApplicationProvider.getApplicationContext())
+        Store.resetForTest()
+        Store.init(ApplicationProvider.getApplicationContext(), TestKeyWrapper())
         val today = LocalDate.now()
         val prompts = PromptLibrary.categories.flatMap { it.prompts }
         val bodies = listOf(
@@ -119,6 +120,8 @@ class ScreenshotTest {
         screen = { SeriesScreen("childhood7") }; shot("08_series")
         screen = { SearchScreen("family") }; shot("09_search")
         screen = { SettingsScreen() }; shot("10_settings")
+        Store.deleteEntry("e1"); Store.deleteEntry("e2")
+        screen = { com.doctorknepper.personalore.ui.screens.TrashScreen() }; shot("13_trash")
         mode = ThemeMode.LIGHT; colorway = "ocean"
         nav.tab = Tab.JOURNAL; screen = { Home(nav) }; shot("11_journal_light_ocean")
         mode = ThemeMode.DARK; colorway = "rose"; nav.tab = Tab.INSIGHTS; shot("12_insights_rose")

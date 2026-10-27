@@ -17,13 +17,18 @@ Everything stays on your phone. There are no accounts, no cloud sync and no inte
 - **Browse** by calendar, search with tag and mood filters, and "On this day" memories from past years
 - **Insights**: writing streaks, an activity grid, mood trends over 30 days, 90 days or a year, and top tags
 - **Daily reminder** that shows today's prompt (skipped if you've already written)
-- **PIN and fingerprint lock**
-- **Backup** to a single .zip file (entries, media and prompt progress) and restore from it
+- **Encrypted on the phone**: entries, photos and voice notes are AES-256-GCM encrypted at rest, with the key unlocked by your PIN, fingerprint or a recovery key
+- **PIN and fingerprint lock** with a one-time recovery key, lockout after repeated wrong PINs, screenshot blocking and an immediate re-lock when you leave the app
+- **Data safety**: 30-day trash with undo, atomic saves, 7 rolling daily snapshots, and undoable restores
+- **Backup** to a single .zip file (entries, photos, voice notes and prompt progress); restore merges by default or replaces everything
+- **Markdown export** so your writing outlives the app
+- **Photo privacy**: location and other EXIF data are stripped on import
+- **Searchable voice notes**: give each one a label
 - **Look**: OLED black with amber by default, plus Ember, Rose, Sage, Ocean, Violet and Silver colorways in dark or light mode
 
 ## Building
 
-Requires JDK 17+ and the Android SDK (platform 35).
+Requires JDK 17+ and the Android SDK (platform 36).
 
 ```
 ./gradlew assembleDebug        # debug APK
@@ -46,4 +51,4 @@ Always sign updates with the same key, or Android won't install them over the ex
 
 ## Data
 
-Stored in the app's private storage: `entries.json`, `prompts.json` and a `media/` folder. Android cloud backup is disabled so nothing leaves the device unless you export a backup yourself.
+Stored encrypted in the app's private storage: `entries.json`, `prompts.json`, a `media/` folder and `snapshots/`. Android cloud backup is disabled and the app has no internet permission, so nothing leaves the device unless you export a backup yourself. Backup files are **not** encrypted (so they can be restored on a new phone), so keep them somewhere private.

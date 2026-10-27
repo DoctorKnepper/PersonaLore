@@ -4,10 +4,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
 
-data class AudioClip(val file: String, val durationMs: Long) {
-    fun toJson() = JSONObject().put("file", file).put("durationMs", durationMs)
+/** A voice note. [note] is an optional searchable label, since audio itself can't be searched. */
+data class AudioClip(val file: String, val durationMs: Long, val note: String = "") {
+    fun toJson() = JSONObject().put("file", file).put("durationMs", durationMs).put("note", note)
     companion object {
-        fun fromJson(o: JSONObject) = AudioClip(o.getString("file"), o.optLong("durationMs", 0))
+        fun fromJson(o: JSONObject) = AudioClip(o.getString("file"), o.optLong("durationMs", 0), o.optString("note", ""))
     }
 }
 
@@ -24,6 +25,8 @@ data class Entry(
     val audio: List<AudioClip>,
     val promptId: String?,
     val promptText: String?,
+    /** Set when the entry is in the trash; it's removed for good 30 days later. */
+    val deletedAt: Long? = null,
 ) {
     fun toJson(): JSONObject = JSONObject()
         .put("id", id)
@@ -38,6 +41,11 @@ data class Entry(
         .put("audio", JSONArray(audio.map { it.toJson() }))
         .put("promptId", promptId ?: JSONObject.NULL)
         .put("promptText", promptText ?: JSONObject.NULL)
+        .put("deletedAt", deletedAt ?: JSONObject.NULL)
+
+    /** Everything search looks through: title, body, prompt, tags and voice note labels. */
+    val searchText: String get() =
+        listOf(title, body, promptText ?: "", tags.joinToString(" "), audio.joinToString(" ") { it.note }).joinToString(" ").lowercase()
 
     val preview: String get() = body.trim().replace(Regex("\\s+"), " ").take(160)
 
@@ -55,6 +63,7 @@ data class Entry(
             audio = o.optJSONArray("audio")?.let { a -> (0 until a.length()).map { AudioClip.fromJson(a.getJSONObject(it)) } } ?: emptyList(),
             promptId = if (o.isNull("promptId")) null else o.optString("promptId"),
             promptText = if (o.isNull("promptText")) null else o.optString("promptText"),
+            deletedAt = if (o.isNull("deletedAt")) null else o.optLong("deletedAt"),
         )
     }
 }

@@ -14,14 +14,14 @@ val keystoreProps = Properties().apply {
 
 android {
     namespace = "com.doctorknepper.personalore"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.doctorknepper.personalore"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        targetSdk = 36
+        versionCode = 3
+        versionName = "1.2"
     }
 
     signingConfigs {
@@ -37,7 +37,10 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 strips unused code (mostly the big Material icon set) from the APK.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
             if (keystoreProps.isNotEmpty()) signingConfig = signingConfigs.getByName("release")
         }
     }
@@ -62,7 +65,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.biometric:biometric:1.1.0")
-    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("androidx.exifinterface:exifinterface:1.4.1")
 
     // Screenshot tests that render the screens on the JVM (no emulator needed)
     testImplementation("junit:junit:4.13.2")

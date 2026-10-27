@@ -50,7 +50,7 @@ fun SearchScreen(initialTag: String?) {
 
     val words = query.trim().lowercase().split(Regex("\\s+")).filter { it.isNotBlank() }
     val results = Store.entries.filter { e ->
-        val hay = (e.title + " " + e.body + " " + (e.promptText ?: "") + " " + e.tags.joinToString(" ")).lowercase()
+        val hay = e.searchText // title, body, prompt, tags and voice note labels
         words.all { it in hay } && tags.all { it in e.tags } && (mood == null || e.mood == mood) &&
             (!withMedia || e.photos.isNotEmpty() || e.audio.isNotEmpty())
     }
@@ -60,7 +60,7 @@ fun SearchScreen(initialTag: String?) {
         LazyColumn(Modifier.padding(pad), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 32.dp)) {
             item {
                 OutlinedTextField(
-                    query, { query = it }, placeholder = { Text("Search your journal") }, singleLine = true,
+                    query, { query = it }, placeholder = { Text("Search entries and voice note labels") }, singleLine = true,
                     leadingIcon = { Icon(Icons.Outlined.Search, null) }, modifier = Modifier.fillMaxWidth().focusRequester(focus),
                 )
                 Row(Modifier.padding(top = 10.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
