@@ -1,0 +1,310 @@
+package com.doctorknepper.personalore.data
+
+/**
+ * The built-in prompt library.
+ * Each line is "Prompt | follow-up | follow-up". Prompt IDs come from the category slug and the
+ * line's position, so add new prompts at the END of a list to keep existing IDs (and the user's
+ * favorites/answered history) stable.
+ */
+object PromptLibrary {
+
+    private fun cat(slug: String, name: String, vararg lines: String) = slug to (name to lines.toList())
+
+    private val raw = listOf(
+        cat("childhood", "Childhood",
+            "What is your earliest memory, and why do you think it stuck with you? | Who else was there, and how do you remember them in that moment? | What does that memory feel like when you revisit it now?",
+            "Describe the home you grew up in, room by room. | Which room felt safest, and why? | What sounds or smells come back when you picture it?",
+            "Who was your closest friend as a child? | What did you two do together that no one else understood? | Where do you think they are now?",
+            "What did you want to be when you grew up? | What drew you to it? | Is any part of that dream still alive in you?",
+            "What was a rule in your house that you didn't understand until you were older? | Do you follow it now, or did you break from it?",
+            "Describe a moment as a child when you felt truly proud of yourself. | Who noticed, and who didn't? | How do you seek that feeling today?",
+            "What were you afraid of as a child? | How did the adults around you respond to that fear? | Which of those fears did you carry into adulthood?",
+            "What did a perfect summer day look like when you were ten? | What would it take to have a day like that now?",
+            "Which teacher or adult outside your family shaped you the most? | What did they see in you? | What would you say to them today?",
+            "When did you first realize your family was different from other families? | How did that change how you saw them?",
+            "What toy, book or object did you treasure most? | What happened to it? | What did it represent to you?",
+            "Describe a time you got in trouble. | Was it fair? | What did you learn, and what do you wish you'd learned instead?",
+            "What was your role in the family: the peacemaker, the rebel, the quiet one, something else? | Do you still play that role anywhere in your life?",
+            "What is one thing from your childhood you'd want every child to experience? | And one thing you'd protect every child from?"),
+        cat("family", "Family",
+            "What is something your mother or a mother figure taught you without ever saying it? | Do you see it in how you live now?",
+            "What is something your father or a father figure taught you without ever saying it? | Which parts do you keep, and which have you let go?",
+            "Describe a family tradition, and what it meant to you. | Have you carried it forward or let it fade?",
+            "Which family member are you most like? | In what ways are you glad of that, and in what ways not?",
+            "What story gets told at every family gathering? | What does that story say about who your family thinks it is?",
+            "Is there a conversation with a family member you've been avoiding? | What would you want them to understand? | What are you afraid they'd say?",
+            "What did your family do well when times were hard? | What did they do badly?",
+            "Describe a grandparent or older relative and what they gave you. | What questions do you wish you had asked them?",
+            "What does 'home' mean to you now, compared to when you were young?",
+            "What patterns from your family do you want to end with you? | What patterns do you hope continue?",
+            "Write about a time your family surprised you. | Did it change how you saw them?",
+            "If you could spend one more ordinary afternoon with someone in your family who is gone or distant, what would you do?"),
+        cat("relationships", "Past Relationships",
+            "Write about your first real crush or first love. | What did that person awaken in you? | What did you believe about love back then?",
+            "Which past relationship taught you the most about yourself? | What did you learn that you couldn't have learned any other way?",
+            "Describe the moment you knew a relationship was over. | Did you act on it right away? Why or why not?",
+            "What is something you never got to say to someone from your past? | Write it here, as if they will never read it.",
+            "Which relationship ended in a way you still think about? | What part of it is unfinished for you?",
+            "What patterns do you notice in the people you've been drawn to? | Where do you think those patterns started?",
+            "Write about someone you hurt. | What do you understand now that you didn't then? | What would amends look like?",
+            "Write about someone who hurt you. | How has that wound changed over time? | What would it take to set it down?",
+            "What did a past partner give you that you still carry? | Have you ever thanked them, even privately?",
+            "Describe the happiest stretch of a past relationship. | What made it work, and what was it hiding?",
+            "What did you sacrifice for a relationship that you'd never sacrifice again?",
+            "How has your idea of a good partner changed over the years? | What changed it?",
+            "Write a letter of forgiveness to your younger self for a relationship mistake.",
+            "What friendship or relationship faded without a clear ending? | How do you feel about how it ended?"),
+        cat("love", "Love & Connection",
+            "How do you most naturally show love? | How do you most need to receive it? | Do the people close to you know the difference?",
+            "Describe a small, ordinary moment when you felt deeply loved.",
+            "What does real intimacy mean to you beyond the physical? | When have you felt it?",
+            "What makes you feel unseen by the people close to you? | Have you told them?",
+            "Who in your life do you love but rarely tell? | What stops you?",
+            "What does commitment mean to you? | Has your answer changed over the years?",
+            "What part of yourself do you hide even from those closest to you? | What would happen if you showed it?",
+            "Describe someone who loves you well. | What do they do that others don't?",
+            "What do you need more of in your relationships right now? | What could you give more of?",
+            "Write about a time love required courage from you."),
+        cat("friendship", "Friendship",
+            "Who has been your friend the longest? | What has kept you connected through the years?",
+            "Describe a friend who showed up for you when it mattered most.",
+            "Which friendship do you miss? | What would it take to reach out?",
+            "What kind of friend are you, honestly? | What would your friends say?",
+            "Write about a friendship that ended badly. | What part was yours?",
+            "What did a friend teach you that changed how you live?",
+            "Who do you call when everything falls apart? | Who calls you?",
+            "Describe the best day you've ever spent with friends.",
+            "Which friend brings out the best in you, and how?",
+            "What makes you hesitant to let new friends in?"),
+        cat("lessons", "Life Lessons",
+            "What is the hardest lesson life has taught you? | How did you learn it? | Would you trade the lesson to undo the pain?",
+            "What advice would you give yourself ten years ago? | Would you have listened?",
+            "Describe a failure that turned out to be a turning point.",
+            "What is something you believed strongly that turned out to be wrong? | What changed your mind?",
+            "When did you first feel like an adult? | What happened?",
+            "What do you know now that you wish everyone knew?",
+            "What mistake do you keep repeating? | What do you think it's trying to teach you?",
+            "Describe a time you chose the harder path. | Was it worth it?",
+            "What have you stopped caring about that used to consume you?",
+            "What is a decision you're glad you made, even though it scared you?",
+            "Who taught you how to handle disappointment, for better or worse?",
+            "What would you tell someone facing the hardest thing you've been through?"),
+        cat("outlook", "Outlook & Mindset",
+            "Are you more of an optimist or a pessimist? | Has that always been true? | What would shift it?",
+            "What does a good life look like to you right now? | How close are you to it?",
+            "What story do you tell yourself about your life? | Is it true? | What other story could be just as true?",
+            "What drains your energy most these days? | What restores it?",
+            "What do you complain about most? | What is underneath that complaint?",
+            "How do you handle uncertainty? | What helps you sit with not knowing?",
+            "What would you do differently if you weren't worried about what others think?",
+            "What does success mean to you, in your own words, not anyone else's?",
+            "Where in your life are you waiting for permission? | Who would you need it from?",
+            "What small thing reliably makes a hard day better?",
+            "How has the way you see the world changed in the last five years?",
+            "What are you tolerating that you don't have to?"),
+        cat("beliefs", "Beliefs & Values",
+            "List the five values that matter most to you. | Which one do you live out best? | Which one do you struggle with?",
+            "What do you believe that most people around you don't? | How did you come to believe it?",
+            "Which belief from your upbringing have you let go of? | What replaced it?",
+            "What would you stand up for, even at real cost to yourself?",
+            "When have your actions not matched your values? | What did you learn from that gap?",
+            "What do you think makes a person good?",
+            "What does justice mean to you in everyday life?",
+            "What is something you're still making up your mind about? | What pulls you each way?",
+            "Who do you admire most, and what does that say about what you value?",
+            "What belief has given you the most comfort in hard times?",
+            "What is one thing you are certain of?",
+            "If you could pass on just one belief to the next generation, what would it be?"),
+        cat("spirituality", "Spirituality",
+            "What does spirituality mean to you, in your own words? | Where did that understanding come from?",
+            "Describe a moment you felt connected to something larger than yourself. | What led up to it? | What stayed with you afterward?",
+            "How has your faith or spiritual life changed since childhood? | What did you lose, and what did you find?",
+            "What do you believe happens after we die? | How does that belief shape how you live now?",
+            "Where do you feel most at peace? | What is it about that place?",
+            "What questions about meaning or God still feel unanswered for you?",
+            "Describe a time you felt guided, protected or answered. | How do you make sense of it now?",
+            "What practice helps you feel grounded: prayer, meditation, nature, music, something else? | How often do you return to it?",
+            "When have you doubted most deeply? | What carried you through it?",
+            "What does grace mean to you? | When have you received it, and when have you given it?",
+            "What does your soul need right now that your schedule isn't giving it?",
+            "Write a prayer, intention or blessing for this season of your life.",
+            "What sacred text, teaching or saying has stayed with you? | Why that one?",
+            "How do you hold suffering and hope at the same time?"),
+        cat("self", "Self & Identity",
+            "How would you describe yourself to someone who will never meet you?",
+            "What part of yourself took you the longest to accept? | What helped?",
+            "When do you feel most like yourself? | When do you feel least like yourself?",
+            "What do people often misunderstand about you?",
+            "What are you proud of that no one else knows about?",
+            "What compliment do you have trouble believing? | Why?",
+            "What mask do you wear most often, and with whom?",
+            "How are you different from who you were five years ago?",
+            "What do you need to forgive yourself for?",
+            "Describe your inner critic. | Whose voice does it sound like? | What would you say back to it?",
+            "What are your quiet strengths, the ones nobody claps for?",
+            "What would a letter from your future self say to you today?"),
+        cat("purpose", "Work & Purpose",
+            "What work makes you lose track of time? | How much of your week is spent on it?",
+            "What did your first job teach you?",
+            "If money were no object, how would you spend your days?",
+            "What problem in the world do you most want to help solve?",
+            "Describe a time your work truly mattered to someone.",
+            "What would you regret not having tried?",
+            "What does rest look like for you, and do you get enough of it?",
+            "Who has been a mentor to you? | What did they see that you couldn't?",
+            "What is a skill you're quietly proud of?",
+            "What do you want to be remembered for?"),
+        cat("future", "Dreams & Future",
+            "Where do you want to be in five years? | What is one step toward it you could take this month?",
+            "What dream have you set aside? | Is it truly gone, or just waiting?",
+            "Describe your ideal ordinary day ten years from now.",
+            "What are you most looking forward to?",
+            "What scares you most about the future? | What would you do if that fear came true?",
+            "What legacy do you want to leave behind?",
+            "What adventure do you still want to have?",
+            "What would you attempt if you knew you couldn't fail?",
+            "Write a letter to yourself to open one year from today.",
+            "What kind of old person do you hope to become?"),
+        cat("gratitude", "Gratitude",
+            "List three things you're grateful for today, and why each one matters.",
+            "Who are you grateful for that you've never properly thanked? | What would you say?",
+            "What hardship are you now grateful for?",
+            "What simple pleasure do you take for granted?",
+            "Describe a stranger's kindness that stayed with you.",
+            "What about your body are you grateful for today?",
+            "What made you laugh recently?",
+            "What do you have now that you once only hoped for?",
+            "What place are you grateful to have been?",
+            "What about this season of life do you want to remember?"),
+        cat("fears", "Fears & Challenges",
+            "What are you most afraid of right now? | What is the worst realistic outcome? | What would you do if it happened?",
+            "Describe a challenge you're facing today. | What would you tell a friend in your situation?",
+            "When have you been braver than you expected?",
+            "What do you avoid thinking about? | Why?",
+            "What is weighing on you that you haven't told anyone?",
+            "What has grief taught you?",
+            "Describe a time you asked for help. | What made it hard?",
+            "What feels out of your control right now? | What is still within it?",
+            "What would you do today if you were not afraid?",
+            "What is something you survived that once seemed impossible?"),
+        cat("memories", "Memories & Places",
+            "Describe a place that changed you.",
+            "What smell instantly takes you back in time? | Where does it take you?",
+            "What song is tied to a powerful memory? | Write the memory, not the lyrics.",
+            "Describe the best meal you've ever had, and who was there.",
+            "What is a moment you'd love to relive exactly as it was?",
+            "Write about a trip that didn't go as planned.",
+            "What is the most beautiful thing you've ever seen?",
+            "Describe a night you'll never forget.",
+            "Which photograph would you save in a fire? | What's the story behind it?",
+            "What everyday scene from years ago do you wish you'd paid more attention to?"),
+        cat("daily", "Daily Reflection",
+            "What was the best part of today? | What made it good?",
+            "What challenged you today, and how did you respond?",
+            "What did you learn today?",
+            "How are you really feeling right now? | Where do you feel it in your body?",
+            "What are you carrying into tomorrow? | What can you set down tonight?",
+            "Who did you connect with today? | How did it feel?",
+            "What would have made today better?",
+            "What is one thing you did today that you're proud of?",
+            "What surprised you today?",
+            "What do you want to remember about today a year from now?",
+            "What did you give your attention to today? | Is that where you want it?",
+            "Describe today in three words, then explain each one."),
+    )
+
+    data class Category(val slug: String, val name: String, val prompts: List<Prompt>)
+
+    val categories: List<Category> = raw.map { (slug, pair) ->
+        val (name, lines) = pair
+        Category(slug, name, lines.mapIndexed { i, line ->
+            val parts = line.split("|").map { it.trim() }.filter { it.isNotEmpty() }
+            Prompt("$slug:$i", name, parts.first(), parts.drop(1))
+        })
+    }
+
+    val categoryNames = categories.map { it.name }
+
+    private fun seriesOf(id: String, title: String, desc: String, vararg lines: String) =
+        GuidedSeries(id, title, desc, lines.mapIndexed { i, line ->
+            val parts = line.split("|").map { it.trim() }.filter { it.isNotEmpty() }
+            Prompt("series:$id:$i", title, parts.first(), parts.drop(1))
+        })
+
+    val series: List<GuidedSeries> = listOf(
+        seriesOf("childhood7", "Your Childhood in 7 Days", "A week walking back through where you came from.",
+            "Day 1: Describe the place you lived the longest as a child. | What did you see from your bedroom window?",
+            "Day 2: Write about the adults who raised you, as you saw them then. | How do you see them now?",
+            "Day 3: Who were your friends, and what did you play? | Which game would you still play today?",
+            "Day 4: Write about the hardest thing that happened in your childhood. | Who helped you through it, if anyone?",
+            "Day 5: What did school teach you about yourself, for better or worse?",
+            "Day 6: Describe a holiday or celebration you remember vividly. | What made it special?",
+            "Day 7: Write a letter to yourself as a child. | What do they most need to hear?"),
+        seriesOf("relationships7", "Relationships Retrospective", "Seven days looking back at the people you've loved and lost.",
+            "Day 1: List the significant relationships of your life so far, in order. | What does the list tell you?",
+            "Day 2: Write about your first love, and what you believed love would be.",
+            "Day 3: Which relationship hurt you most? | What did that pain protect you from later?",
+            "Day 4: Which relationship did you end, and why? | How do you feel about it now?",
+            "Day 5: What patterns repeat across your relationships? | Where did they begin?",
+            "Day 6: What have you learned about what you need from someone?",
+            "Day 7: Write a thank-you to each past relationship for one thing it taught you."),
+        seriesOf("beliefs7", "What I Believe", "A week to put your beliefs into your own words.",
+            "Day 1: What did you believe as a child about God, people and the world?",
+            "Day 2: What did you question as a teenager or young adult? | What did you find?",
+            "Day 3: What do you believe about right and wrong, and where does it come from?",
+            "Day 4: What do you believe about suffering, and why it happens?",
+            "Day 5: What do you believe about people: are we mostly good, mostly selfish, something else?",
+            "Day 6: What do you believe gives a life meaning?",
+            "Day 7: Write your personal creed: ten sentences that begin with 'I believe…'"),
+        seriesOf("spirit7", "A Spiritual Journey", "Seven days tracing your inner life.",
+            "Day 1: Describe your earliest experience of faith, wonder or the sacred.",
+            "Day 2: Who shaped your spiritual life the most? | What did they model for you?",
+            "Day 3: Write about a season of doubt or distance. | What did it teach you?",
+            "Day 4: Describe a moment of deep peace or presence.",
+            "Day 5: What practices nourish your spirit, and which have you let go?",
+            "Day 6: Where do you sense meaning or the sacred in everyday life now?",
+            "Day 7: What do you hope your spiritual life looks like a year from now?"),
+        seriesOf("chapters10", "A Life in Chapters", "Ten days writing your life as a book, one chapter at a time.",
+            "Day 1: If your life were a book, what would the chapters be called? List them.",
+            "Day 2: Write the opening scene of your story.",
+            "Day 3: Write about the chapter that changed everything.",
+            "Day 4: Who are the main characters, and what role does each play?",
+            "Day 5: Write about the chapter you'd most like to rewrite.",
+            "Day 6: What is the central conflict of your story so far?",
+            "Day 7: Write about your proudest chapter.",
+            "Day 8: What chapter are you in right now? | What is it about?",
+            "Day 9: What themes keep coming back across your chapters?",
+            "Day 10: Write the next chapter as you hope it will unfold."),
+        seriesOf("letters5", "Letters Across Time", "Five letters to the people you were and will be.",
+            "Day 1: Write a letter to yourself at age seven.",
+            "Day 2: Write a letter to yourself at seventeen.",
+            "Day 3: Write a letter to yourself on your hardest day.",
+            "Day 4: Write a letter to the person you are right now.",
+            "Day 5: Write a letter to yourself at eighty, and imagine their reply."),
+    )
+
+    /** Every prompt available: library, series and the user's own. */
+    fun allPrompts(st: PromptState): List<Prompt> =
+        categories.flatMap { it.prompts } + st.custom.map { it.asPrompt() }
+
+    fun find(id: String?, st: PromptState): Prompt? {
+        if (id == null) return null
+        return categories.firstNotNullOfOrNull { c -> c.prompts.firstOrNull { it.id == id } }
+            ?: series.firstNotNullOfOrNull { s -> s.prompts.firstOrNull { it.id == id } }
+            ?: st.custom.firstOrNull { it.id == id }?.asPrompt()
+    }
+
+    /** Prompts in a category, including the user's own prompts filed under it. */
+    fun promptsIn(categoryName: String, st: PromptState): List<Prompt> =
+        (categories.firstOrNull { it.name == categoryName }?.prompts ?: emptyList()) +
+            st.custom.filter { it.category == categoryName }.map { it.asPrompt() }
+
+    fun allCategoryNames(st: PromptState) = categoryNames + st.customCategories.filterNot { it in categoryNames }
+
+    fun random(st: PromptState, categoryName: String? = null, unansweredOnly: Boolean = true, exclude: String? = null): Prompt? {
+        val pool = (if (categoryName == null) allPrompts(st) else promptsIn(categoryName, st))
+            .filter { it.id !in st.hidden && it.id != exclude }
+        val fresh = if (unansweredOnly) pool.filter { (st.answered[it.id] ?: 0) == 0 } else pool
+        return fresh.ifEmpty { pool }.randomOrNull()
+    }
+}
