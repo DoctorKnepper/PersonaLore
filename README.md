@@ -7,7 +7,7 @@ Everything stays on your phone. There are no accounts, no cloud sync and no inte
 ## Features
 
 - **Entries** with text, photos, voice recordings, tags and a mood rating, on any date
-- **Prompt generator** with 184 built-in prompts across 16 categories, including childhood, family, past relationships, beliefs, spirituality and more
+- **Prompt generator** with 228 built-in prompts across 21 categories, including childhood, past relationships, beliefs, spirituality, grounding, anxiety, attachment and more
   - Pick a category, or get a random surprise prompt
   - A daily prompt on the home screen
   - "Go deeper" follow-up questions you can add to an entry
